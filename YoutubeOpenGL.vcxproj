@@ -71,11 +71,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>E:\myproj\opengl\YoutubeOpenGL\libraries\include;$(IncludePath)</IncludePath>
+    <IncludePath>E:\myproj\opengl\YoutubeOpenGL\inc;E:\myproj\opengl\YoutubeOpenGL\libraries\include;$(IncludePath)</IncludePath>
     <LibraryPath>E:\myproj\opengl\YoutubeOpenGL\libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>E:\myproj\opengl\YoutubeOpenGL\libraries\include;$(IncludePath)</IncludePath>
+    <IncludePath>E:\myproj\opengl\YoutubeOpenGL\inc;E:\myproj\opengl\YoutubeOpenGL\libraries\include;$(IncludePath)</IncludePath>
     <LibraryPath>E:\myproj\opengl\YoutubeOpenGL\libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -135,6 +135,20 @@
   <ItemGroup>
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\EBO.cpp" />
+    <ClCompile Include="src\shaderClass.cpp" />
+    <ClCompile Include="src\VAO.cpp" />
+    <ClCompile Include="src\VBO.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\default.vert" />
+    <None Include="assets\shaders\default.frag" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="inc\EBO.h" />
+    <ClInclude Include="inc\shaderClass.h" />
+    <ClInclude Include="inc\VAO.h" />
+    <ClInclude Include="inc\VBO.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
