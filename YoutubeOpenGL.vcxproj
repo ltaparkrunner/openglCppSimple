@@ -151,6 +151,9 @@
     <ClInclude Include="inc\VAO.h" />
     <ClInclude Include="inc\VBO.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\textures\pop_cat.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

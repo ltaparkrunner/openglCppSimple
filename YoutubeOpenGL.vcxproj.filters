@@ -16,6 +16,9 @@
     <Filter Include="Файлы ресурсов\Shaders">
       <UniqueIdentifier>{2e4c2958-12bd-4fde-9757-1a562e8adf50}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Файлы ресурсов\Textures">
+      <UniqueIdentifier>{cf0d9ef5-b26c-4197-8c73-03d6b6fc3a9c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -61,5 +64,10 @@
     <ClInclude Include="inc\VAO.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\textures\pop_cat.png">
+      <Filter>Файлы ресурсов\Textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>
