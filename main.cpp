@@ -30,10 +30,18 @@ int main() {
 	// Define the vertices of a triangle
 	GLfloat vertices[] = {
 		-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // left  
-		 0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // right 
-		 0.0f,  0.5f * float(sqrt(3)) * 2 / 3, 0.0f  // top   
+		0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // right 
+		0.0f,  0.5f * float(sqrt(3)) * 2 / 3, 0.0f,  // top   
+		-0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // left inner
+		0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // right inner
+		0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f // down inner
 	};
 
+	GLuint indices[] = {
+		0, 3, 5, // left triangle
+		3, 2, 4, // right triangle
+		5, 4, 1 // top triangle	
+	};
 	// Create a windowed mode window and its OpenGL context
 	GLFWwindow* window = glfwCreateWindow(800, 800, "YoutubeOpenGL Window", nullptr, nullptr);
 	if (!window) {
@@ -71,19 +79,26 @@ int main() {
 	glDeleteShader(fragmentShader);
 
 	// Set up vertex data and buffers and configure vertex attributes
-	GLuint VBO, VAO;
+	GLuint VBO, VAO, EBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
 	// Bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
 	// Configure vertex attributes so that OpenGL knows how to interpret the vertex data
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	// Note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // Unbind EBO (not really necessary)
 
 
 
@@ -99,8 +114,8 @@ int main() {
 		// Draw the triangle
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
+		//	glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
 		// Swap front and back buffers
 		glfwSwapBuffers(window);		
 		// Poll for and process events
@@ -110,6 +125,7 @@ int main() {
 	// Deallocate resources
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
 	//glDeleteBuffers(1, &shaderProgram);
 	//glDeleteBuffers(1, &vertexShader);
 	//glDeleteBuffers(1, &fragmentShader);
