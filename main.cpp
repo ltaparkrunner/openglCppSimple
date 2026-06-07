@@ -9,12 +9,12 @@
 
 // Define the vertices of a triangle
 GLfloat vertices[] = {
-	-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // left  
-	0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // right 
-	0.0f,  0.5f * float(sqrt(3)) * 2 / 3, 0.0f,  // top   
-	-0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // left inner
-	0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // right inner
-	0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f // down inner
+	-0.5f,		-0.5f * float(sqrt(3)) / 3,			0.0f,	0.8f,	0.3f,	0.02f,	// left  
+	0.5f,		-0.5f * float(sqrt(3)) / 3,			0.0f,	0.8f,	0.3f,	0.02f,	// right 
+	0.0f,		0.5f * float(sqrt(3)) * 2 / 3,		0.0f,	1.0f,	0.6f,	0.32f, // top   
+	-0.5f / 2,	0.5f * float(sqrt(3)) / 6,			0.0f,	0.9f,	0.45f,	0.17f,// left inner
+	0.5f / 2,	0.5f * float(sqrt(3)) / 6,			0.0f,	0.4f,	0.9f,	0.55f, // right inner
+	0.0f,		-0.5f * float(sqrt(3)) / 3,			0.0f,	0.8f,	0.3f,	0.02f	// down inner
 };
 
 GLuint indices[] = {
@@ -53,15 +53,14 @@ int main() {
 	// Set the viewport and clear the screen with a color
 	glViewport(0, 0, 800, 800);
 	
-//	Shader shaderProgram(".\\assets\\shaders\\default.vert", ".\\assets\\shaders\\default.frag");
-//	Shader shaderProgram("assets\\shaders\\default.vert", "assets\\shaders\\default.frag");
 	Shader shaderProgram("./assets/shaders/default.vert", "./assets/shaders/default.frag");
 	VAO VAO1;
 	VAO1.Bind();
 	VBO VBO1(vertices, sizeof(vertices));
 	EBO EBO1(indices, sizeof(indices));
 
-	VAO1.LinkVBO(VBO1, 0);
+	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	VAO1.Unbind();
 	VBO1.Unbind();
 	EBO1.Unbind();
