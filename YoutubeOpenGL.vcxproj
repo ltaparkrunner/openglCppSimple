@@ -135,6 +135,7 @@
   <ItemGroup>
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\EBO.cpp" />
     <ClCompile Include="src\shaderClass.cpp" />
     <ClCompile Include="src\stb.cpp" />
@@ -147,6 +148,7 @@
     <None Include="assets\shaders\default.frag" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="inc\camera.h" />
     <ClInclude Include="inc\EBO.h" />
     <ClInclude Include="inc\shaderClass.h" />
     <ClInclude Include="inc\texture.h" />

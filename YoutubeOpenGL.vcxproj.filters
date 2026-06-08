@@ -48,6 +48,9 @@
     <ClCompile Include="src\texture.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\camera.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\default.vert">
@@ -71,6 +74,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="inc\texture.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\camera.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
