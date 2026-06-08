@@ -146,6 +146,8 @@
   <ItemGroup>
     <None Include="assets\shaders\default.vert" />
     <None Include="assets\shaders\default.frag" />
+    <None Include="assets\shaders\light.frag" />
+    <None Include="assets\shaders\light.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\camera.h" />
