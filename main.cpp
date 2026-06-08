@@ -4,6 +4,7 @@
 #include <stb/stb_image.h>
 
 #include "shaderClass.h"
+#include "texture.h"
 #include "VAO.h"
 #include "VBO.h"
 #include "EBO.h"
@@ -52,6 +53,7 @@ int main() {
 	glViewport(0, 0, 800, 800);
 	
 	Shader shaderProgram("./assets/shaders/default.vert", "./assets/shaders/default.frag");
+
 	VAO VAO1;
 	VAO1.Bind();
 	VBO VBO1(vertices, sizeof(vertices));
@@ -67,31 +69,10 @@ int main() {
 	GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
 
 	//Texture
-	int widthImg, heightImg, numColCh;
-	unsigned char* bytes = stbi_load("./assets/textures/pop_cat.png", &widthImg, &heightImg, &numColCh, 0);
-	std::cout << "Width: " << widthImg << " Height: " << heightImg << " Number of color channels: " << numColCh << std::endl;
 
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	Texture popCat("./assets/textures/pop_cat.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	popCat.texUnit(shaderProgram, "tex0", 0);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// float flatColor[] = { 1.0f, 0.0f, 0.0f, 1.0f };
-	// glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, flatColor);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImg, heightImg, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	stbi_image_free(bytes);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glBindTexture(GL_TEXTURE_2D, texture);
-
-	GLuint tex0Uni = glGetUniformLocation(shaderProgram.ID, "tex0");
-	shaderProgram.Activate();
-	glUniform1i(tex0Uni, 0);
 	// Main loop
 	while (!glfwWindowShouldClose(window)) {
 		// Render here (clear the screen)
@@ -100,7 +81,7 @@ int main() {
 		// Draw the triangle
 		shaderProgram.Activate();
 		glUniform1f(uniID, 0.5f);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		popCat.Bind();
 		VAO1.Bind();
 		//	glDrawArrays(GL_TRIANGLES, 0, 3);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -114,7 +95,7 @@ int main() {
 	VAO1.Delete();
 	VBO1.Delete();
 	EBO1.Delete();
-	glDeleteTextures(1, &texture);
+	popCat.Delete();
 	shaderProgram.Delete();
 	// Clean up and exit
 	glfwDestroyWindow(window);
