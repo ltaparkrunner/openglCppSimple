@@ -11,6 +11,7 @@
 #include "VAO.h"
 #include "VBO.h"
 #include "EBO.h"
+#include "camera.h"
 
 const unsigned int width = 800;
 const unsigned int height = 800;
@@ -95,20 +96,21 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// Draw the triangle
 		shaderProgram.Activate();
-
+		// A simple timer
 		double crntTime = glfwGetTime();
 		if (crntTime - prevTime >= 1.0 / 60) {
 			rotation += 0.5f;
 			prevTime = crntTime;
 		}
-
+		// Iniatializes matrices so they are not the null matrices
 		glm::mat4 model = glm::mat4(1.0f);
 		glm::mat4 view = glm::mat4(1.0f);
 		glm::mat4 proj = glm::mat4(1.0f);
+		// Assign different transformation to each matrix
 		model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 		view = glm::translate(view, glm::vec3(0.0f, -0.5f, -2.0f));
 		proj = glm::perspective(glm::radians(45.0f), (float)(width / height), 0.1f, 100.0f);
-
+		// Input the matrices into the Vertex Shader
 		int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
