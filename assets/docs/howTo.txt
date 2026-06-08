@@ -1,0 +1,4 @@
+local coord	  -- model matrux --> world coord 
+-- view matrix --> view coord 
+-- projection matrix --> clip coord 
+-- automatic --> screen coord.

@@ -2,6 +2,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stb/stb_image.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "shaderClass.h"
 #include "texture.h"
@@ -9,17 +12,25 @@
 #include "VBO.h"
 #include "EBO.h"
 
+const unsigned int width = 800;
+const unsigned int height = 800;
+
 // Define the vertices of a triangle
 GLfloat vertices[] = {
-	-0.5f,		-0.5f,		0.0f,		1.0f,	0.0f,	0.0f,		0.0f, 0.0f,	// left  
-	-0.5f ,		0.5f,		0.0f,		0.0f,	1.0f,	0.0f,		0.0f, 1.0f,
-	0.5f,		0.5f,		0.0f,		0.0f,	0.0f,	1.0f,		1.0f, 1.0f,	// right 
-	0.5f,		-0.5f,		0.0f,		1.0f,	1.0f,	1.0f,		1.0f, 0.0f // top   
+	-0.5f,		0.0f,		0.5f,		0.83f,	0.70f,	0.44f,		0.0f, 0.0f,	// left  
+	-0.5f ,		0.0f,		-0.5f,		0.83f,	0.70f,	0.44f,		5.0f, 0.0f,
+	0.5f,		0.0f,		-0.5f,		0.83f,	0.70f,	0.44f,		0.0f, 0.0f,	// left  
+	0.5f,		0.0f,		0.5f,		0.83f,	0.70f,	0.44f,		5.0f, 0.0f,	// left  
+	0.0f,		0.8f,		0.0f,		0.92f,	0.86f,	0.76f,		2.5f, 5.0f	// left  
 };
 
 GLuint indices[] = {
-	0, 2, 1, // first triangle
-	0, 3, 2, // second triangle
+	0, 1, 2,
+	0, 2, 3,
+	0, 1, 4,
+	1, 2, 4,
+	2, 3, 4,
+	3, 0, 4
 };
 
 int main() {
@@ -34,7 +45,7 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Create a windowed mode window and its OpenGL context
-	GLFWwindow* window = glfwCreateWindow(800, 800, "YoutubeOpenGL Window", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(width, height, "YoutubeOpenGL Window", nullptr, nullptr);
 	if (!window) {
 		std::cerr << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
@@ -50,7 +61,7 @@ int main() {
 	// Now we can use OpenGL functions
 	gladLoadGL();
 	// Set the viewport and clear the screen with a color
-	glViewport(0, 0, 800, 800);
+	glViewport(0, 0, width, height);
 	
 	Shader shaderProgram("./assets/shaders/default.vert", "./assets/shaders/default.frag");
 
@@ -70,7 +81,7 @@ int main() {
 
 	//Texture
 
-	Texture popCat("./assets/textures/pop_cat.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	Texture popCat("./assets/3d/brick.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 	popCat.texUnit(shaderProgram, "tex0", 0);
 
 	// Main loop
@@ -80,11 +91,25 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 		// Draw the triangle
 		shaderProgram.Activate();
+
+		glm::mat4 model = glm::mat4(1.0f);
+		glm::mat4 view = glm::mat4(1.0f);
+		glm::mat4 proj = glm::mat4(1.0f);
+		view = glm::translate(view, glm::vec3(0.0f, -0.5f, -2.0f));
+		proj = glm::perspective(glm::radians(45.0f), (float)(width / height), 0.1f, 100.0f);
+
+		int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+
 		glUniform1f(uniID, 0.5f);
 		popCat.Bind();
 		VAO1.Bind();
 		//	glDrawArrays(GL_TRIANGLES, 0, 3);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(int), GL_UNSIGNED_INT, 0);
 		// Swap front and back buffers
 		glfwSwapBuffers(window);		
 		// Poll for and process events

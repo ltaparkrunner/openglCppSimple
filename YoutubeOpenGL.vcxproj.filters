@@ -19,6 +19,9 @@
     <Filter Include="Файлы ресурсов\Textures">
       <UniqueIdentifier>{cf0d9ef5-b26c-4197-8c73-03d6b6fc3a9c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Файлы ресурсов\Docs">
+      <UniqueIdentifier>{40016eb0-2228-467d-97ec-5d5179a411c2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -75,5 +78,10 @@
     <Image Include="assets\textures\pop_cat.png">
       <Filter>Файлы ресурсов\Textures</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="assets\docs\howTo.txt">
+      <Filter>Файлы ресурсов\Docs</Filter>
+    </Text>
   </ItemGroup>
 </Project>

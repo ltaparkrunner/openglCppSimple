@@ -156,6 +156,9 @@
   <ItemGroup>
     <Image Include="assets\textures\pop_cat.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="assets\docs\howTo.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
