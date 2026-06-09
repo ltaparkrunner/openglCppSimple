@@ -62,7 +62,7 @@ void Shader::Delete()
 void Shader::compileErrors(GLuint shader, const char* type) {
 	GLint hasCompiled;
 	char infoLog[1024];
-	if (strcmp(type, "PROGRAM") != 0) {
+	if (type != "PROGRAM") {
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &hasCompiled);
 		if (hasCompiled == GL_FALSE) {
 			glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
