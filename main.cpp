@@ -116,6 +116,8 @@ int main() {
 	lightVBO.Unbind();
 	lightEBO.Unbind();
 
+	glm::vec3 axisPos = glm::vec3(-0.5f, -0.5f, -0.5f);
+	
 	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
 	glm::mat4 lightModel = glm::mat4(1.0f);
 	lightModel = glm::translate(lightModel, lightPos);
