@@ -48,12 +48,21 @@
     <ClCompile Include="src\texture.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\camera.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\default.vert">
       <Filter>Файлы ресурсов\Shaders</Filter>
     </None>
     <None Include="assets\shaders\default.frag">
+      <Filter>Файлы ресурсов\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\light.frag">
+      <Filter>Файлы ресурсов\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\light.vert">
       <Filter>Файлы ресурсов\Shaders</Filter>
     </None>
   </ItemGroup>
@@ -71,6 +80,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="inc\texture.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\camera.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

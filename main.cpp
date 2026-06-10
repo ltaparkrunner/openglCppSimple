@@ -11,6 +11,7 @@
 #include "VAO.h"
 #include "VBO.h"
 #include "EBO.h"
+#include "camera.h"
 
 const unsigned int width = 800;
 const unsigned int height = 800;
@@ -31,6 +32,32 @@ GLuint indices[] = {
 	1, 2, 4,
 	2, 3, 4,
 	3, 0, 4
+};
+
+GLfloat lightVertices[] = {
+	-0.1f, -0.1f,  0.1f,
+	-0.1f, -0.1f, -0.1f,
+	 0.1f, -0.1f, -0.1f,
+	 0.1f, -0.1f,  0.1f,
+	-0.1f,  0.1f, -0.1f,
+	-0.1f,  0.1f, -0.1f,
+	 0.1f,  0.1f, -0.1f,
+	 0.1f,  0.1f,  0.1f
+};
+
+GLuint lightIndices[] = {
+	0, 1, 2,
+	0, 2, 3,
+	0, 4, 7,
+	0, 7, 3,
+	3, 7, 6,
+	3, 6, 2,
+	2, 6, 5,
+	2, 5, 1,
+	1, 5, 4,
+	1, 4, 0,
+	4, 5, 6,
+	4, 6, 7
 };
 
 int main() {
@@ -77,24 +104,50 @@ int main() {
 	VBO1.Unbind();
 	EBO1.Unbind();
 
-	GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
+	Shader lightShader("./assets/shaders/light.vert", "./assets/shaders/light.frag");
+	VAO lightVAO;
+	lightVAO.Bind();
 
+	VBO lightVBO(lightVertices, sizeof(lightVertices));
+	EBO lightEBO(lightIndices, sizeof(lightIndices));
+
+	lightVAO.LinkAttrib(lightVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
+	lightVAO.Unbind();
+	lightVBO.Unbind();
+	lightEBO.Unbind();
+
+	glm::vec3 axisPos = glm::vec3(-0.5f, -0.5f, -0.5f);
+	
+	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
+	glm::mat4 lightModel = glm::mat4(1.0f);
+	lightModel = glm::translate(lightModel, lightPos);
+
+	glm::vec3 pyramidPos = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::mat4 pyramidModel = glm::mat4(1.0f);
+	pyramidModel = glm::translate(pyramidModel, pyramidPos);
+
+	lightShader.Activate();
+	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
+	shaderProgram.Activate();
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(pyramidModel));
 	//Texture
-
 	Texture popCat("./assets/3d/brick.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 	popCat.texUnit(shaderProgram, "tex0", 0);
 
-	float rotation = 0.0f;
-	double prevTime = glfwGetTime();
-
 	glEnable(GL_DEPTH_TEST);
+	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 	// Main loop
 	while (!glfwWindowShouldClose(window)) {
 		// Render here (clear the screen)
 		glClearColor(0.27f, 0.33f, 0.37f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		// Draw the triangle
+
+		// shaderProgram.Activate();
+
+		camera.Inputs(window);
+		camera.updateMatrix(45.0f, 0.1f, 100.0f);
 		shaderProgram.Activate();
+		camera.Matrix(shaderProgram, "camMatrix");
 
 		double crntTime = glfwGetTime();
 		if (crntTime - prevTime >= 1.0 / 60) {
@@ -125,6 +178,11 @@ int main() {
 		VAO1.Bind();
 		//	glDrawArrays(GL_TRIANGLES, 0, 3);
 		glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(int), GL_UNSIGNED_INT, 0);
+
+		lightShader.Activate();
+		camera.Matrix(lightShader, "camMatrix");
+		lightVAO.Bind();
+		glDrawElements(GL_TRIANGLES, sizeof(lightIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
 		// Swap front and back buffers
 		glfwSwapBuffers(window);		
 		// Poll for and process events
