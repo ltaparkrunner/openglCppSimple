@@ -177,6 +177,31 @@ int main() {
 		// glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
 //		camera.Matrix(shaderProgram, "camMatrix");
 
+		double crntTime = glfwGetTime();
+		if (crntTime - prevTime >= 1.0 / 60) {
+			rotation += 0.5f;
+			prevTime = crntTime;
+		}
+
+		glm::vec3 axisPosition = glm::vec3(-0.5f, 0.0f, -0.5f); 
+		glm::mat4 model = glm::mat4(1.0f);
+		glm::mat4 view = glm::mat4(1.0f);
+		glm::mat4 proj = glm::mat4(1.0f);
+
+		model = glm::translate(model, axisPosition);
+		model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, -axisPosition);
+		view = glm::translate(view, glm::vec3(0.0f, -0.5f, -2.0f));
+		proj = glm::perspective(glm::radians(45.0f), (float)(width / height), 0.1f, 100.0f);
+
+		int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+
+		glUniform1f(uniID, 0.5f);
 		popCat.Bind();
 		VAO1.Bind();
 		//	glDrawArrays(GL_TRIANGLES, 0, 3);

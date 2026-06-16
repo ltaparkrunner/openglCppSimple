@@ -19,7 +19,7 @@ find_package(Threads REQUIRED)
 set(SOURCE_FILES
     main.cpp
     glad.c # Include your OpenGL loader if using GLAD
-    src/camera.cpp
+#    src/camera.cpp
     src/EBO.cpp
     src/shaderClass.cpp
     src/stb.cpp

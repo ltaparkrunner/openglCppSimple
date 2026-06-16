@@ -428,5 +428,5 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
-# cmake build directory
+# CMake build
 build/

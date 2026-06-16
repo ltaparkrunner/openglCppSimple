@@ -10,7 +10,6 @@ std::string get_file_contents(const char* filename)
 		//in.close();
 		//return contents.str();
 		std::string contents;
-		//	std::cout << "Reading file 2: " << filename << std::endl;
 		in.seekg(0, std::ios::end);
 		contents.resize(in.tellg());
 		in.seekg(0, std::ios::beg);
@@ -23,7 +22,7 @@ std::string get_file_contents(const char* filename)
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
-	std::cout << "Loading shader files... " << vertexPath << " " << fragmentPath << std::endl;
+	//	std::cout << "Loading shader files... " << vertexPath << " " << fragmentPath << std::endl;
 	std::string vertexCode = get_file_contents(vertexPath);
 
 	std::string fragmentCode = get_file_contents(fragmentPath);
@@ -62,7 +61,8 @@ void Shader::Delete()
 void Shader::compileErrors(GLuint shader, const char* type) {
 	GLint hasCompiled;
 	char infoLog[1024];
-	if (type != "PROGRAM") {
+	//if (strcmp(type, "PROGRAM") != 0) {
+	if(type != "PROGRAM") {
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &hasCompiled);
 		if (hasCompiled == GL_FALSE) {
 			glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
