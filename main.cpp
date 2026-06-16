@@ -39,7 +39,7 @@ GLfloat lightVertices[] = {
 	-0.1f, -0.1f, -0.1f,
 	 0.1f, -0.1f, -0.1f,
 	 0.1f, -0.1f,  0.1f,
-	-0.1f,  0.1f, -0.1f,
+	-0.1f,  0.1f,  0.1f,
 	-0.1f,  0.1f, -0.1f,
 	 0.1f,  0.1f, -0.1f,
 	 0.1f,  0.1f,  0.1f
@@ -119,15 +119,15 @@ int main() {
 	glm::vec3 axisPosition = glm::vec3(-0.5f, -0.0f, -0.5f);
 	
 	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
-	glm::mat4 lightModel = glm::mat4(1.0f);
-	lightModel = glm::translate(lightModel, lightPos);
+	// glm::mat4 lightModel = glm::mat4(1.0f);
+	// lightModel = glm::translate(lightModel, lightPos);
 
 	glm::vec3 pyramidPos = glm::vec3(0.0f, 0.0f, 0.0f);
 	// glm::mat4 pyramidModel = glm::mat4(1.0f);
 	// pyramidModel = glm::translate(pyramidModel, pyramidPos);
 
-	lightShader.Activate();
-	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
+	//	lightShader.Activate();
+	//	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
 	// shaderProgram.Activate();
 	// glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(pyramidModel));
 	//Texture
@@ -148,21 +148,6 @@ int main() {
 		glClearColor(0.27f, 0.33f, 0.37f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
-		// 	std::cout << "(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS): " << key_r_repeat << std::endl;
-		// 	key_r_repeat++;
-		// 	if(key_r_repeat > 10000) key_r_repeat = 0;
-		// 	rotation += 0.5f;
-		// 	if(rotation >= 360.0f) rotation = 0;
-		// 	lightModel = glm::translate(lightModel, axisPosition);
-		// 	lightModel = glm::rotate(lightModel, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-		// 	lightModel = glm::translate(lightModel, -axisPosition);
-
-		// 	pyramidModel = glm::translate(pyramidModel, axisPosition);
-		// 	pyramidModel = glm::rotate(pyramidModel, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-		// 	pyramidModel = glm::translate(pyramidModel, -axisPosition);
-		// }
-
 		camera.Inputs(window);
 		camera.updateMatrix(45.0f, 0.1f, 100.0f);
 		shaderProgram.Activate();
@@ -174,15 +159,15 @@ int main() {
 		}
 		glm::mat4 pyramidModel = glm::mat4(1.0f);
 		pyramidModel = glm::translate(pyramidModel, pyramidPos);
-		glm::mat4 view = glm::mat4(1.0f);
-		glm::mat4 proj = glm::mat4(1.0f);
+		// glm::mat4 view = glm::mat4(1.0f);
+		// glm::mat4 proj = glm::mat4(1.0f);
 	
 
 		pyramidModel = glm::translate(pyramidModel, axisPosition);
 		pyramidModel = glm::rotate(pyramidModel, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 		pyramidModel = glm::translate(pyramidModel, -axisPosition);
-		view = glm::translate(view, glm::vec3(0.0f, -0.5f, -2.0f));
-		proj = glm::perspective(glm::radians(45.0f), (float)(width / height), 0.1f, 100.0f);
+		// view = glm::translate(view, glm::vec3(0.0f, -0.5f, -2.0f));
+		// proj = glm::perspective(glm::radians(45.0f), (float)(width / height), 0.1f, 100.0f);
 
 		int pyramidModelLoc = glGetUniformLocation(shaderProgram.ID, "pyramidModel");
 		glUniformMatrix4fv(pyramidModelLoc, 1, GL_FALSE, glm::value_ptr(pyramidModel));
@@ -198,7 +183,18 @@ int main() {
 		glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(int), GL_UNSIGNED_INT, 0);
 
 		lightShader.Activate();
+		glm::mat4 lightModel = glm::mat4(1.0f);
+		//	lightModel = glm::translate(lightModel, lightPos);
+
 		camera.Matrix(lightShader, "camMatrix");
+		lightModel = glm::translate(lightModel, axisPosition);
+		lightModel = glm::rotate(lightModel, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+		lightModel = glm::translate(lightModel, -axisPosition);
+		lightModel = glm::translate(lightModel, lightPos);
+//		glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
+		int lightModelLoc = glGetUniformLocation(lightShader.ID, "lightModel");
+		glUniformMatrix4fv(lightModelLoc, 1, GL_FALSE, glm::value_ptr(lightModel));
+
 		lightVAO.Bind();
 		glDrawElements(GL_TRIANGLES, sizeof(lightIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
 		// Swap front and back buffers
