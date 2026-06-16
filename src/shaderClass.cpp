@@ -3,14 +3,14 @@
 std::string get_file_contents(const char* filename)
 {
 	std::ifstream in(filename, std::ios::in | std::ios::binary);
-	std::cout << "Reading file: " << filename << std::endl;
+	//	std::cout << "Reading file: " << filename << std::endl;
 	if (in) {
 		//std::ostringstream contents;
 		//contents << in.rdbuf();
 		//in.close();
 		//return contents.str();
 		std::string contents;
-		std::cout << "Reading file 2: " << filename << std::endl;
+		//	std::cout << "Reading file 2: " << filename << std::endl;
 		in.seekg(0, std::ios::end);
 		contents.resize(in.tellg());
 		in.seekg(0, std::ios::beg);
