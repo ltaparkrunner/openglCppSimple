@@ -170,6 +170,7 @@ int main() {
 		camera.Inputs(window);
 		camera.updateMatrix(45.0f, 0.1f, 100.0f);
 		shaderProgram.Activate();
+		glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
 		camera.Matrix(shaderProgram, "camMatrix");
 
 		popCat.Bind();
@@ -193,6 +194,11 @@ int main() {
 	EBO1.Delete();
 	popCat.Delete();
 	shaderProgram.Delete();
+
+	lightVAO.Delete();
+	lightVBO.Delete();
+	lightEBO.Delete();
+	lightShader.Delete();
 	// Clean up and exit
 	glfwDestroyWindow(window);
 	glfwTerminate();
