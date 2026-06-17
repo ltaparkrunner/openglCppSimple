@@ -6,10 +6,11 @@ Texture::Texture(const char* image, GLenum texType, GLenum slot, GLenum format, 
 	int widthImg, heightImg, numColCh;
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char* bytes = stbi_load(image, &widthImg, &heightImg, &numColCh, 0);
-	std::cout << "Width: " << widthImg << " Height: " << heightImg << " Number of color channels: " << numColCh << std::endl;
+	//std::cout << "Width: " << widthImg << " Height: " << heightImg << " Number of color channels: " << numColCh << std::endl;
 
 	glGenTextures(1, &ID);
-	glActiveTexture(slot);
+	glActiveTexture(GL_TEXTURE0 + slot);
+	unit = slot;
 	glBindTexture(texType, ID);
 	glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -29,6 +30,7 @@ void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit) {
 }
 
 void Texture::Bind() {
+	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(type, ID);
 }
 
