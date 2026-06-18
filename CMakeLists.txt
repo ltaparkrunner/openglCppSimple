@@ -26,6 +26,7 @@ set(SOURCE_FILES
     src/texture.cpp
     src/VAO.cpp
     src/VBO.cpp
+    src/mesh.cpp
 )
 
 # 5. Define the executable output
