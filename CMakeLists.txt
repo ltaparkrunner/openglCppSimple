@@ -27,6 +27,7 @@ set(SOURCE_FILES
     src/VAO.cpp
     src/VBO.cpp
     src/mesh.cpp
+    src/model.cpp
 )
 
 # 5. Define the executable output
