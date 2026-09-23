@@ -2,14 +2,14 @@
 #include <cstring>
 
 Texture::Texture(const char* image, const char* texType, GLuint slot) {
-	std::cout << "Texture::Texture" << std::endl;
+//	std::cout << "Texture::Texture" << std::endl;
 	type = texType;
 	// type = GL_TEXTURE_2D;
 
 	int widthImg, heightImg, numColCh;
 	stbi_set_flip_vertically_on_load(true);
-	std::cout << "image length: " << std::strlen(image) << std::endl;
-	std::cout << "image: " << image << std::endl;
+//	std::cout << "image length: " << std::strlen(image) << std::endl;
+//	std::cout << "image: " << image << std::endl;
 	unsigned char* bytes = stbi_load(image, &widthImg, &heightImg, &numColCh, 0);
 	//std::cout << "Width: " << widthImg << " Height: " << heightImg << " Number of color channels: " << numColCh << std::endl;
 
@@ -22,7 +22,7 @@ Texture::Texture(const char* image, const char* texType, GLuint slot) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	std::cout << "Forev__numColCh: " << numColCh << std::endl;
+//	std::cout << "Forev__numColCh: " << numColCh << std::endl;
 	if(numColCh == 4) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImg, heightImg, 
 		0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
 	else if(numColCh == 3) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImg, heightImg, 

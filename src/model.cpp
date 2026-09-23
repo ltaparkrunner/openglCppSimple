@@ -2,17 +2,13 @@
 
 Model::Model(const char* file)
 {
-    std::cout << "just before get_file_contents file: " << file << std::endl;
     std::string text = get_file_contents(file);
-    // std::cout << "just bafter get_file_contents file: " << std::endl;
+
     JSON = json::parse(text);
-    // std::cout << "just after json::parse(text) " << std::endl;
     Model::file = file;
-    // std::cout << "just after  Model::file = file " << std::endl;
+
     data = getData();
-    std::cout << "just after  getData() " << std::endl;
     traverseNode(0);
-    std::cout << "just after  traverseNode(0) " << std::endl;
 }
 
 void Model::Draw(Shader& shader, Camera& camera) {
@@ -125,19 +121,14 @@ void Model::traverseNode(unsigned int nextNode, glm::mat4 matrix)
 }
 
 std::vector<unsigned char> Model::getData(){
-//    std::cout << "start of getData()" << std::endl;
     std::string bytesText;
     std::string uri = JSON["buffers"][0]["uri"];
 
-    std::cout << "getData before of std::string(file) " << std::endl;
     std::string fileStr = std::string(file);
-    std::cout << "getData before of fileStr.substr(0, fileStr.find_last_of('/') + 1) " << std::endl;
     std::string fileDirectory = fileStr.substr(0, fileStr.find_last_of('/') + 1);
-    std::cout << "getData before of get_file_contents((fileDirectory + uri).c_str()) " << std::endl;
+
     bytesText = get_file_contents((fileDirectory + uri).c_str());
-    std::cout << "getData before of data(bytesText.begin(), bytesText.end()) " << std::endl;
     std::vector<unsigned char> data(bytesText.begin(), bytesText.end());
-    std::cout << "getData before return " << std::endl;
     return data;
 }
 

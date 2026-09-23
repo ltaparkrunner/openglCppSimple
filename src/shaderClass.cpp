@@ -2,24 +2,6 @@
 
 std::string get_file_contents(const char* filename)
 {
-	// std::cout << "get_file_contents start: " << filename << std::endl;
-	// std::ifstream in(filename, std::ios::in | std::ios::binary);
-	// std::cout << "get_file_contents just after std::ifstream" << std::endl;
-	// if (in) {
-	// 	std::cout << "get_file_contents just after in" << std::endl;
-	// 	std::string contents;
-	// 	std::cout << "get_file_contents in.seekg" << std::endl;
-	// 	in.seekg(0, std::ios::end);
-	// 	contents.resize(in.tellg());
-	// 	std::cout << "get_file_contents in.seekg 2" << std::endl;
-	// 	in.seekg(0, std::ios::beg);
-	// 	std::cout << "get_file_contents in.read" << std::endl;
-	// 	in.read(&contents[0], contents.size());
-	// 	std::cout << "get_file_contents in.close" << std::endl;
-	// 	in.close();
-	// 	return contents;
-	// }
-	// throw(errno);
 	std::cout << "get_file_contents start: " << filename << std::endl;
 	std::ifstream in(filename, std::ios::binary);
 	if (in)
