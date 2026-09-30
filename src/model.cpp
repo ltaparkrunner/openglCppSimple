@@ -8,6 +8,7 @@ Model::Model(const char* file)
     Model::file = file;
 
     data = getData();
+
     traverseNode(0);
 }
 
@@ -35,7 +36,9 @@ void Model::loadMesh(unsigned int indMesh)
 
 	// Combine all the vertex components and also get the indices and textures
 	std::vector<Vertex> vertices = assembleVertices(positions, normals, texUVs);
+
 	std::vector<GLuint> indices = getIndices(JSON["accessors"][indAccInd]);
+
 	std::vector<Texture> textures = getTextures();
 
 	// Combine the vertices, indices, and textures into a mesh
@@ -56,6 +59,7 @@ void Model::traverseNode(unsigned int nextNode, glm::mat4 matrix)
 			transValues[i] = (node["translation"][i]);
 		translation = glm::make_vec3(transValues);
 	}
+
 	// Get quaternion if it exists
 	glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 	if (node.find("rotation") != node.end())
@@ -69,6 +73,7 @@ void Model::traverseNode(unsigned int nextNode, glm::mat4 matrix)
 		};
 		rotation = glm::make_quat(rotValues);
 	}
+
 	// Get scale if it exists
 	glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
 	if (node.find("scale") != node.end())
@@ -78,6 +83,7 @@ void Model::traverseNode(unsigned int nextNode, glm::mat4 matrix)
 			scaleValues[i] = (node["scale"][i]);
 		scale = glm::make_vec3(scaleValues);
 	}
+
 	// Get matrix if it exists
 	glm::mat4 matNode = glm::mat4(1.0f);
 	if (node.find("matrix") != node.end())
@@ -87,7 +93,6 @@ void Model::traverseNode(unsigned int nextNode, glm::mat4 matrix)
 			matValues[i] = (node["matrix"][i]);
 		matNode = glm::make_mat4(matValues);
 	}
-
 	// Initialize matrices
 	glm::mat4 trans = glm::mat4(1.0f);
 	glm::mat4 rot = glm::mat4(1.0f);
@@ -111,7 +116,6 @@ void Model::traverseNode(unsigned int nextNode, glm::mat4 matrix)
 
 		loadMesh(node["mesh"]);
 	}
-
 	// Check if the node has children, and if it does, apply this function to them with the matNextNode
 	if (node.find("children") != node.end())
 	{
@@ -129,6 +133,7 @@ std::vector<unsigned char> Model::getData(){
 
     bytesText = get_file_contents((fileDirectory + uri).c_str());
     std::vector<unsigned char> data(bytesText.begin(), bytesText.end());
+
     return data;
 }
 
@@ -172,29 +177,33 @@ std::vector<GLuint> Model::getIndices(json accessor) {
     json bufferView = JSON["bufferViews"][buffViewInd];
     unsigned int byteOffset = bufferView["byteOffset"];
     unsigned int beginningOfData = byteOffset + accByteOffset;
+
     if(componentType == 5125) {
-        for(unsigned int i = beginningOfData; i < byteOffset + accByteOffset + count * 4; i)
+        for(unsigned int i = beginningOfData; i < byteOffset + accByteOffset + count * 4; i += 4)
         {
             unsigned char bytes[] = { data[i++], data[i++], data[i++], data[i++]};
             unsigned int value;
+
             std::memcpy(&value, bytes, sizeof(unsigned int));
             indices.push_back((GLuint)value);
         }
     }
     else if(componentType == 5123) {
-        for(unsigned int i = beginningOfData; i < byteOffset + accByteOffset + count * 4; i)
+        for(unsigned int i = beginningOfData; i < byteOffset + accByteOffset + count * 2; i += 2)
         {
             unsigned char bytes[] = { data[i++], data[i++] };
             unsigned int value;
+
             std::memcpy(&value, bytes, sizeof(unsigned short));
             indices.push_back((GLuint)value);
         }
     }
     else if(componentType == 5122) {
-        for(unsigned int i = beginningOfData; i < byteOffset + accByteOffset + count * 4; i)
+        for(unsigned int i = beginningOfData; i < byteOffset + accByteOffset + count * 2; i += 2 )
         {
             unsigned char bytes[] = { data[i++], data[i++] };
             unsigned int value;
+
             std::memcpy(&value, bytes, sizeof(short));
             indices.push_back((GLuint)value);
         }

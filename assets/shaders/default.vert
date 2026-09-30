@@ -17,7 +17,7 @@ uniform mat4 scale;
 
 void main()
 {
-	crntPos = vec3(model * translation * -rotation * scale * vec4(aPos, 1.0f));
+	crntPos = vec3(model * translation * rotation * scale * vec4(aPos, 1.0f));
    //	gl_Position = vec4(aPos.x + aPos.x * scale, aPos.y + aPos.y * scale, aPos.z + aPos.z * scale, 1.0);
 	Normal = aNormal;
    color = aColor;

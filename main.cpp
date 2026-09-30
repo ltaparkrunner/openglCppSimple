@@ -1,4 +1,6 @@
 //	#include "mesh.h"
+#include<filesystem>
+namespace fs = std::filesystem;
 #include "model.h"
 
 const unsigned int width = 800;
@@ -47,21 +49,34 @@ int main() {
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 
-	Model model("./assets/map/scene.gltf");
+	std::string parentDir = (fs::current_path().fs::path::parent_path()).string();
+	std::string groundPath = "/openglCppSimple/assets/models/ground/scene.gltf";
+	std::string treesPath = "/openglCppSimple/assets/models/trees/scene.gltf";
+
+	// Load in models
+	Model ground((parentDir + groundPath).c_str());
+	Model trees((parentDir + treesPath).c_str());
 
 	while (!glfwWindowShouldClose(window)) {
 		// Render here (clear the screen)
-		glClearColor(0.27f, 0.33f, 0.37f, 1.0f);
+		glClearColor(0.85f, 0.85f, 0.90f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.Inputs(window);
+
 		camera.updateMatrix(45.0f, 0.1f, 100.0f);
-		model.Draw(shaderProgram, camera);
+
+		ground.Draw(shaderProgram, camera);
+
+		trees.Draw(shaderProgram, camera);
+
 
 		glfwSwapBuffers(window);		
 		// Poll for and process events
+
 		glfwPollEvents();
 	}
 
