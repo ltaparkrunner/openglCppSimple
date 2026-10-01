@@ -5,4 +5,6 @@ local coord	  -- model matrux --> world coord
 
 
 outlining --> составление плана или обвести по контуру
+An FPS (Frames Per Second) counter in OpenGL measures how many complete render loops your program finishes in one second.
+Face Culling is an optimization technique in OpenGL that discards (does not render) polygons that are facing away from the camera
 

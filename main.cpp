@@ -38,7 +38,7 @@ int main() {
 	glViewport(0, 0, width, height);
 
 	Shader shaderProgram("./assets/shaders/default.vert", "./assets/shaders/default.frag");
-	Shader outliningProgram("./assets/shaders/outlining.vert", "./assets/shaders/outlining.frag");
+//	Shader outliningProgram("./assets/shaders/outlining.vert", "./assets/shaders/outlining.frag");
 
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	
@@ -51,18 +51,21 @@ int main() {
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
 	glEnable(GL_DEPTH_TEST);
-	//	glDepthFunc(GL_LESS);
-	glEnable(GL_STENCIL_TEST);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
+	glFrontFace(GL_CCW);
+
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 
 	std::string parentDir = (fs::current_path().fs::path::parent_path()).string();
-	std::string modelPath = "/openglCppSimple/assets/models/crow/scene.gltf";
-	std::string outlinePath = "/openglCppSimple/assets/models/crow-outline/scene.gltf";
+	// std::string modelPath = "/openglCppSimple/assets/models/crow/scene.gltf";
+	// std::string outlinePath = "/openglCppSimple/assets/models/crow-outline/scene.gltf";
+	std::string modelPath = "/openglCppSimple/assets/models/statue/scene.gltf";
 
 	// Load in models
 	Model model((parentDir + modelPath).c_str());
-	Model outline((parentDir + outlinePath).c_str());
+	// Model outline((parentDir + outlinePath).c_str());
 	// Model trees((parentDir + treesPath).c_str());
 
 	while (!glfwWindowShouldClose(window)) {
@@ -83,9 +86,9 @@ int main() {
 		glDisable(GL_DEPTH_TEST);
 
 		// First method from the tutorial
-		//outliningProgram.Activate();
-		//glUniform1f(glGetUniformLocation(outliningProgram.ID, "outlining"), 1.08f);
-		//model.Draw(outliningProgram, camera);
+		// outliningProgram.Activate();
+		// glUniform1f(glGetUniformLocation(outliningProgram.ID, "outlining"), 1.08f);
+		// model.Draw(outliningProgram, camera);
 		
 		// Second method from the tutorial
 		//outliningProgram.Activate();
@@ -93,7 +96,7 @@ int main() {
 		//model.Draw(outliningProgram, camera);
 		
 		// Third method from the tutorial
-		outline.Draw(outliningProgram, camera);
+		//	outline.Draw(outliningProgram, camera);
 
 		glStencilMask(0xFF);
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);
