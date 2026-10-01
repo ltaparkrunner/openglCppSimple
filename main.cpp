@@ -6,6 +6,22 @@ namespace fs = std::filesystem;
 const unsigned int width = 800;
 const unsigned int height = 800;
 
+// Takes care of the information needed to draw the windows
+const unsigned int numWindows = 100;
+glm::vec3 positionsWin[numWindows];
+float rotationsWin[numWindows];
+
+// Takes care of drawing the windows in the right order
+unsigned int orderDraw[numWindows];
+float distanceCamera[numWindows];
+
+// Compare function
+int compare(const void* a, const void* b)
+{
+	double diff = distanceCamera[*(int*)b] - distanceCamera[*(int*)a];
+	return  (0 < diff) - (diff < 0);
+}
+
 int main() {
 	// Initialize GLFW
 	if (!glfwInit()) {
@@ -38,7 +54,8 @@ int main() {
 	glViewport(0, 0, width, height);
 
 	Shader shaderProgram("./assets/shaders/default.vert", "./assets/shaders/default.frag");
-//	Shader outliningProgram("./assets/shaders/outlining.vert", "./assets/shaders/outlining.frag");
+	Shader grassProgram("./assets/shaders/default.vert", "./assets/shaders/grass.frag");
+	Shader winProgram("./assets/shaders/default.vert", "./assets/shaders/windows.frag");
 
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	
@@ -49,31 +66,49 @@ int main() {
 	shaderProgram.Activate();
 	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+	grassProgram.Activate();
+	glUniform4f(glGetUniformLocation(grassProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform3f(glGetUniformLocation(grassProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+
 
 	glEnable(GL_DEPTH_TEST);
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 	glFrontFace(GL_CCW);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 
 	std::string parentDir = (fs::current_path().fs::path::parent_path()).string();
-	// std::string modelPath = "/openglCppSimple/assets/models/crow/scene.gltf";
-	// std::string outlinePath = "/openglCppSimple/assets/models/crow-outline/scene.gltf";
-	std::string modelPath = "/openglCppSimple/assets/models/statue/scene.gltf";
+
+	std::string groundPath = "/openglCppSimple/assets/models/ground/scene.gltf";
+	std::string grassPath = "/openglCppSimple/assets/models/grass/scene.gltf";
+	std::string winPath = "/openglCppSimple/assets/models/windows/scene.gltf";
 
 	// Load in models
-	Model model((parentDir + modelPath).c_str());
-	// Model outline((parentDir + outlinePath).c_str());
-	// Model trees((parentDir + treesPath).c_str());
+	Model ground((parentDir + groundPath).c_str());
+	Model grass((parentDir + grassPath).c_str());
+	Model windows((parentDir + winPath).c_str());
+
 	double prevTime = 0.0;
 	double crntTime = 0.0;
 	double timeDiff;
 	// Keeps track of the amount of frames in timeDiff
 	unsigned int counter = 0;
 
-	glfwSwapInterval(0);
+	// glfwSwapInterval(0);
+	for (unsigned int i = 0; i < numWindows; i++)
+	{
+		positionsWin[i] = glm::vec3
+		(
+			-15.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (15.0f - (-15.0f)))),
+			1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (4.0f - 1.0f))),
+			-15.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (15.0f - (-15.0f))))
+		);
+		rotationsWin[i] = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 1.0f));
+		orderDraw[i] = i;
+	}
 
 	while (!glfwWindowShouldClose(window)) {
 		crntTime = glfwGetTime();
@@ -96,40 +131,34 @@ int main() {
 		}
 		// Render here (clear the screen)
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.Inputs(window);
 
 		camera.updateMatrix(45.0f, 0.1f, 100.0f);
 
-		glStencilFunc(GL_ALWAYS, 1, 0xFF);
-		glStencilMask(0xFF);
+		// Draw the normal model
+		ground.Draw(shaderProgram, camera);
 
-		model.Draw(shaderProgram, camera);
-		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-		glStencilMask(0x00);
-		glDisable(GL_DEPTH_TEST);
-
-		double prevTime = 0.0;
-		double crntTime = 0.0;
-		double timeDiff;
-		unsigned int counter = 0;
-		// First method from the tutorial
-		// outliningProgram.Activate();
-		// glUniform1f(glGetUniformLocation(outliningProgram.ID, "outlining"), 1.08f);
-		// model.Draw(outliningProgram, camera);
-		
-		// Second method from the tutorial
-		//outliningProgram.Activate();
-		//glUniform1f(glGetUniformLocation(outliningProgram.ID, "outlining"), 0.08f);
-		//model.Draw(outliningProgram, camera);
-		
-		// Third method from the tutorial
-		//	outline.Draw(outliningProgram, camera);
-
-		glStencilMask(0xFF);
-		glStencilFunc(GL_ALWAYS, 1, 0xFF);
-		glEnable(GL_DEPTH_TEST);
+		// Disable cull face so that grass and windows have both faces
+		glDisable(GL_CULL_FACE);
+		grass.Draw(grassProgram, camera);
+		// Enable blending for windows
+		glEnable(GL_BLEND);
+		// Get distance from each window to the camera
+		for (unsigned int i = 0; i < numWindows; i++)
+		{
+			distanceCamera[i] = glm::length(camera.Position - positionsWin[i]);
+		}
+		// Sort windows by distance from camera
+		qsort(orderDraw, numWindows, sizeof(unsigned int), compare);
+		// Draw windows
+		for (unsigned int i = 0; i < numWindows; i++)
+		{
+			windows.Draw(winProgram, camera, positionsWin[orderDraw[i]], glm::quat(1.0f, 0.0f, rotationsWin[orderDraw[i]], 0.0f));
+		}
+		glDisable(GL_BLEND);
+		glEnable(GL_CULL_FACE);
 
 		glfwSwapBuffers(window);		
 		// Poll for and process events
