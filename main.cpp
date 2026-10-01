@@ -67,8 +67,33 @@ int main() {
 	Model model((parentDir + modelPath).c_str());
 	// Model outline((parentDir + outlinePath).c_str());
 	// Model trees((parentDir + treesPath).c_str());
+	double prevTime = 0.0;
+	double crntTime = 0.0;
+	double timeDiff;
+	// Keeps track of the amount of frames in timeDiff
+	unsigned int counter = 0;
+
+	glfwSwapInterval(0);
 
 	while (!glfwWindowShouldClose(window)) {
+		crntTime = glfwGetTime();
+		timeDiff = crntTime - prevTime;
+		counter++;
+		if (timeDiff >= 1.0 / 30.0)
+		{
+			// Creates new title
+			std::string FPS = std::to_string((1.0 / timeDiff) * counter);
+			std::string ms = std::to_string((timeDiff / counter) * 1000);
+			std::string newTitle = "YoutubeOpenGL - " + FPS + "FPS / " + ms + "ms";
+			glfwSetWindowTitle(window, newTitle.c_str());
+
+			// Resets times and counter
+			prevTime = crntTime;
+			counter = 0;
+
+			// Use this if you have disabled VSync
+			//camera.Inputs(window);
+		}
 		// Render here (clear the screen)
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -85,6 +110,10 @@ int main() {
 		glStencilMask(0x00);
 		glDisable(GL_DEPTH_TEST);
 
+		double prevTime = 0.0;
+		double crntTime = 0.0;
+		double timeDiff;
+		unsigned int counter = 0;
 		// First method from the tutorial
 		// outliningProgram.Activate();
 		// glUniform1f(glGetUniformLocation(outliningProgram.ID, "outlining"), 1.08f);
