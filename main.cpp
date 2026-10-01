@@ -13,8 +13,9 @@ int main() {
 		return -1;
 	}
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Create a windowed mode window and its OpenGL context
@@ -37,6 +38,7 @@ int main() {
 	glViewport(0, 0, width, height);
 
 	Shader shaderProgram("./assets/shaders/default.vert", "./assets/shaders/default.frag");
+	Shader outliningProgram("./assets/shaders/outlining.vert", "./assets/shaders/outlining.frag");
 
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	
@@ -49,30 +51,53 @@ int main() {
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
 	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
+	//	glDepthFunc(GL_LESS);
+	glEnable(GL_STENCIL_TEST);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 
 	std::string parentDir = (fs::current_path().fs::path::parent_path()).string();
-	std::string groundPath = "/openglCppSimple/assets/models/ground/scene.gltf";
-	std::string treesPath = "/openglCppSimple/assets/models/trees/scene.gltf";
+	std::string modelPath = "/openglCppSimple/assets/models/crow/scene.gltf";
+	std::string outlinePath = "/openglCppSimple/assets/models/crow-outline/scene.gltf";
 
 	// Load in models
-	Model ground((parentDir + groundPath).c_str());
-	Model trees((parentDir + treesPath).c_str());
+	Model model((parentDir + modelPath).c_str());
+	Model outline((parentDir + outlinePath).c_str());
+	// Model trees((parentDir + treesPath).c_str());
 
 	while (!glfwWindowShouldClose(window)) {
 		// Render here (clear the screen)
-		glClearColor(0.85f, 0.85f, 0.90f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		camera.Inputs(window);
 
 		camera.updateMatrix(45.0f, 0.1f, 100.0f);
 
-		ground.Draw(shaderProgram, camera);
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glStencilMask(0xFF);
 
-		trees.Draw(shaderProgram, camera);
+		model.Draw(shaderProgram, camera);
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glStencilMask(0x00);
+		glDisable(GL_DEPTH_TEST);
 
+		// First method from the tutorial
+		//outliningProgram.Activate();
+		//glUniform1f(glGetUniformLocation(outliningProgram.ID, "outlining"), 1.08f);
+		//model.Draw(outliningProgram, camera);
+		
+		// Second method from the tutorial
+		//outliningProgram.Activate();
+		//glUniform1f(glGetUniformLocation(outliningProgram.ID, "outlining"), 0.08f);
+		//model.Draw(outliningProgram, camera);
+		
+		// Third method from the tutorial
+		outline.Draw(outliningProgram, camera);
+
+		glStencilMask(0xFF);
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glEnable(GL_DEPTH_TEST);
 
 		glfwSwapBuffers(window);		
 		// Poll for and process events

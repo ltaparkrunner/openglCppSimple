@@ -2,3 +2,7 @@ local coord	  -- model matrux --> world coord
 -- view matrix --> view coord 
 -- projection matrix --> clip coord 
 -- automatic --> screen coord.
+
+
+outlining --> составление плана или обвести по контуру
+
