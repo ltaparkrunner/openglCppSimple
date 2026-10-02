@@ -2,6 +2,7 @@
 #include<filesystem>
 namespace fs = std::filesystem;
 #include "model.h"
+#include "lightsources.h"
 
 const unsigned int width = 800;
 const unsigned int height = 800;
@@ -57,12 +58,36 @@ int main() {
 	Shader grassProgram("./assets/shaders/default.vert", "./assets/shaders/grass.frag");
 	Shader winProgram("./assets/shaders/default.vert", "./assets/shaders/windows.frag");
 
+	Shader lightShader("./assets/shaders/light.vert", "./assets/shaders/light.frag");
+	VAO lightVAO;
+	lightVAO.Bind();
+
+	VBO lightVBO(lightVertices, sizeLightV);
+	EBO lightEBO(lightIndices, sizeLightI);
+
+	lightVAO.LinkAttrib(lightVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
+	lightVAO.Unbind();
+	lightVBO.Unbind();
+	lightEBO.Unbind();
+
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	glm::vec3 axisPos = glm::vec3(-0.5f, -0.5f, -0.5f);
 	
-	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
+	glm::vec3 lightPos = glm::vec3(30.5f, 30.5f, 30.5f);
 	glm::mat4 lightModel = glm::mat4(1.0f);
 	lightModel = glm::translate(lightModel, lightPos);
 
+	// glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	
+	// glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
+	// glm::mat4 lightModel = glm::mat4(1.0f);
+	// lightModel = glm::translate(lightModel, lightPos);
+
+
+	lightShader.Activate();
+//	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "lightPos"), 1, GL_FALSE, glm::value_ptr(lightModel));
+	glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform3f(glGetUniformLocation(lightShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 	shaderProgram.Activate();
 	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
@@ -90,6 +115,10 @@ int main() {
 	Model ground((parentDir + groundPath).c_str());
 	Model grass((parentDir + grassPath).c_str());
 	Model windows((parentDir + winPath).c_str());
+
+	glm::vec3 pyramidPos = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::mat4 pyramidModel = glm::mat4(1.0f);
+	pyramidModel = glm::translate(pyramidModel, pyramidPos);
 
 	double prevTime = 0.0;
 	double crntTime = 0.0;
@@ -159,6 +188,12 @@ int main() {
 		}
 		glDisable(GL_BLEND);
 		glEnable(GL_CULL_FACE);
+///////////////////
+		lightShader.Activate();
+		camera.Matrix(lightShader, "camMatrix");
+		lightVAO.Bind();
+		glDrawElements(GL_TRIANGLES, sizeLightI / sizeof(int), GL_UNSIGNED_INT, 0);
+////////////////
 
 		glfwSwapBuffers(window);		
 		// Poll for and process events

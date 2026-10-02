@@ -28,6 +28,7 @@ set(SOURCE_FILES
     src/VBO.cpp
     src/mesh.cpp
     src/model.cpp
+    src/lightsources.cpp
 )
 
 # 5. Define the executable output
