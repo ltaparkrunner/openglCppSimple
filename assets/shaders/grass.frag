@@ -1,4 +1,4 @@
-#version 330 core
+#version 430 core
 
 // Outputs colors in RGBA
 out vec4 FragColor;
