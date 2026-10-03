@@ -1,4 +1,3 @@
-//	#include "mesh.h"
 #include<filesystem>
 namespace fs = std::filesystem;
 #include "model.h"
@@ -6,21 +5,17 @@ namespace fs = std::filesystem;
 const unsigned int width = 800;
 const unsigned int height = 800;
 
-// Takes care of the information needed to draw the windows
-const unsigned int numWindows = 100;
-glm::vec3 positionsWin[numWindows];
-float rotationsWin[numWindows];
-
-// Takes care of drawing the windows in the right order
-unsigned int orderDraw[numWindows];
-float distanceCamera[numWindows];
-
-// Compare function
-int compare(const void* a, const void* b)
+float rectangleVertices[] =
 {
-	double diff = distanceCamera[*(int*)b] - distanceCamera[*(int*)a];
-	return  (0 < diff) - (diff < 0);
-}
+	// Coords    // texCoords
+	 1.0f, -1.0f,  1.0f, 0.0f,
+	-1.0f, -1.0f,  0.0f, 0.0f,
+	-1.0f,  1.0f,  0.0f, 1.0f,
+
+	 1.0f,  1.0f,  1.0f, 1.0f,
+	 1.0f, -1.0f,  1.0f, 0.0f,
+	-1.0f,  1.0f,  0.0f, 1.0f
+};
 
 int main() {
 	// Initialize GLFW
@@ -35,7 +30,7 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Create a windowed mode window and its OpenGL context
-	GLFWwindow* window = glfwCreateWindow(width, height, "YoutubeOpenGL Window", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(width, height, "OpenGL Window", nullptr, nullptr);
 	if (!window) {
 		std::cerr << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
@@ -54,42 +49,47 @@ int main() {
 	glViewport(0, 0, width, height);
 
 	Shader shaderProgram("./assets/shaders/default.vert", "./assets/shaders/default.frag");
-	Shader grassProgram("./assets/shaders/default.vert", "./assets/shaders/grass.frag");
-	Shader winProgram("./assets/shaders/default.vert", "./assets/shaders/windows.frag");
+	Shader framebufferProgram("./assets/shaders/framebuffer.vert", "./assets/shaders/framebuffer.frag");
 
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	
 	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
-	glm::mat4 lightModel = glm::mat4(1.0f);
-	lightModel = glm::translate(lightModel, lightPos);
+	// glm::mat4 lightModel = glm::mat4(1.0f);
+	// lightModel = glm::translate(lightModel, lightPos);
 
 	shaderProgram.Activate();
 	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-	grassProgram.Activate();
-	glUniform4f(glGetUniformLocation(grassProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-	glUniform3f(glGetUniformLocation(grassProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-
+	framebufferProgram.Activate();
+	glUniform1i(glGetUniformLocation(framebufferProgram.ID, "screenTexture"), 0);
 
 	glEnable(GL_DEPTH_TEST);
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 	glFrontFace(GL_CCW);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 
 	std::string parentDir = (fs::current_path().fs::path::parent_path()).string();
 
-	std::string groundPath = "/openglCppSimple/assets/models/ground/scene.gltf";
-	std::string grassPath = "/openglCppSimple/assets/models/grass/scene.gltf";
-	std::string winPath = "/openglCppSimple/assets/models/windows/scene.gltf";
+	std::string modelPath = "/openglCppSimple/assets/models/crow/scene.gltf";
 
 	// Load in models
-	Model ground((parentDir + groundPath).c_str());
-	Model grass((parentDir + grassPath).c_str());
-	Model windows((parentDir + winPath).c_str());
+	Model model((parentDir + modelPath).c_str());
+
+	// Prepare framebuffer rectangle VBO and VAO
+	unsigned int rectVAO, rectVBO;
+	glGenVertexArrays(1, &rectVAO);
+	glGenBuffers(1, &rectVBO);
+	glBindVertexArray(rectVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, rectVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(rectangleVertices), &rectangleVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
 	double prevTime = 0.0;
 	double crntTime = 0.0;
@@ -97,18 +97,34 @@ int main() {
 	// Keeps track of the amount of frames in timeDiff
 	unsigned int counter = 0;
 
-	// glfwSwapInterval(0);
-	for (unsigned int i = 0; i < numWindows; i++)
-	{
-		positionsWin[i] = glm::vec3
-		(
-			-15.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (15.0f - (-15.0f)))),
-			1.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (4.0f - 1.0f))),
-			-15.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (15.0f - (-15.0f))))
-		);
-		rotationsWin[i] = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 1.0f));
-		orderDraw[i] = i;
-	}
+	// Create Frame Buffer Object
+	unsigned int FBO;
+	glGenFramebuffers(1, &FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+	// Create Framebuffer Texture
+	unsigned int framebufferTexture;
+	glGenTextures(1, &framebufferTexture);
+	glBindTexture(GL_TEXTURE_2D, framebufferTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // Prevents edge bleeding
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Prevents edge bleeding
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebufferTexture, 0);
+
+	// Create Render Buffer Object
+	unsigned int RBO;
+	glGenRenderbuffers(1, &RBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
+
+
+	// Error checking framebuffer
+	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Framebuffer error: " << fboStatus << std::endl;
 
 	while (!glfwWindowShouldClose(window)) {
 		crntTime = glfwGetTime();
@@ -129,36 +145,28 @@ int main() {
 			// Use this if you have disabled VSync
 			//camera.Inputs(window);
 		}
+		// Bind the custom framebuffer
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 		// Render here (clear the screen)
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// Enable depth testing since it's disabled when drawing the framebuffer rectangle
+		glEnable(GL_DEPTH_TEST);
 
 		camera.Inputs(window);
 
 		camera.updateMatrix(45.0f, 0.1f, 100.0f);
 
 		// Draw the normal model
-		ground.Draw(shaderProgram, camera);
-
-		// Disable cull face so that grass and windows have both faces
-		glDisable(GL_CULL_FACE);
-		grass.Draw(grassProgram, camera);
-		// Enable blending for windows
-		glEnable(GL_BLEND);
-		// Get distance from each window to the camera
-		for (unsigned int i = 0; i < numWindows; i++)
-		{
-			distanceCamera[i] = glm::length(camera.Position - positionsWin[i]);
-		}
-		// Sort windows by distance from camera
-		qsort(orderDraw, numWindows, sizeof(unsigned int), compare);
-		// Draw windows
-		for (unsigned int i = 0; i < numWindows; i++)
-		{
-			windows.Draw(winProgram, camera, positionsWin[orderDraw[i]], glm::quat(1.0f, 0.0f, rotationsWin[orderDraw[i]], 0.0f));
-		}
-		glDisable(GL_BLEND);
-		glEnable(GL_CULL_FACE);
+		model.Draw(shaderProgram, camera);
+		// Bind the default framebuffer
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		// Draw the framebuffer rectangle
+		framebufferProgram.Activate();
+		glBindVertexArray(rectVAO);
+		glDisable(GL_DEPTH_TEST); // prevents framebuffer rectangle from being discarded
+		glBindTexture(GL_TEXTURE_2D, framebufferTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glfwSwapBuffers(window);		
 		// Poll for and process events
@@ -167,6 +175,7 @@ int main() {
 	}
 
 	shaderProgram.Delete();
+	glDeleteFramebuffers(1, &FBO);
 	// Clean up and exit
 	glfwDestroyWindow(window);
 	glfwTerminate();
