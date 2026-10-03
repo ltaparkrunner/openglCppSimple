@@ -243,7 +243,7 @@ std::vector<glm::vec4> Model::groupFloatsVec4(std::vector<float> floatVec) {
     }
     return vectors;
 }
-
+/*
 std::vector<Texture> Model::getTextures(){
     std::vector<Texture> textures;
 
@@ -272,6 +272,46 @@ std::vector<Texture> Model::getTextures(){
                 loadedTexName.push_back(texPath);
             }
             else if (texPath.find("metallicRoughness") != std::string::npos) {
+                Texture specular = Texture((fileDirectory + texPath).c_str(), "specular", loadedTex.size());
+                textures.push_back(specular);
+                loadedTex.push_back(specular);
+                loadedTexName.push_back(texPath);
+            }
+        }
+    }
+    return textures;
+}
+*/
+
+std::vector<Texture> Model::getTextures() {
+    std::vector<Texture> textures;
+
+    std::string fileStr = std::string(file);
+    std::string fileDirectory = fileStr.substr(0, fileStr.find_last_of('/') + 1);
+
+    for (unsigned int i = 0; i < JSON["images"].size(); i++)
+    {
+        std::string texPath = JSON["images"][i]["uri"];
+
+        bool skip = false;
+        for (unsigned int j = 0; j < loadedTexName.size(); j++) {
+            if (loadedTexName[j] == texPath) {
+                textures.push_back(loadedTex[j]);
+                skip = true;
+                break;
+            }
+        }
+
+        if (!skip) {
+            // Ищем "baseColor" ИЛИ "diffuse" для базовой текстуры
+            if (texPath.find("baseColor") != std::string::npos || texPath.find("diffuse") != std::string::npos) {
+                Texture diffuse = Texture((fileDirectory + texPath).c_str(), "diffuse", loadedTex.size());
+                textures.push_back(diffuse);
+                loadedTex.push_back(diffuse);
+                loadedTexName.push_back(texPath);
+            }
+            // Ищем "metallicRoughness" ИЛИ "specular" для бликов
+            else if (texPath.find("metallicRoughness") != std::string::npos || texPath.find("specular") != std::string::npos) {
                 Texture specular = Texture((fileDirectory + texPath).c_str(), "specular", loadedTex.size());
                 textures.push_back(specular);
                 loadedTex.push_back(specular);
