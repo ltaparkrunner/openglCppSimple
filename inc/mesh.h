@@ -16,7 +16,12 @@ public:
     std::vector <Texture> textures;
 
     VAO mVAO;
-    Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::vector <Texture>& textures);
+
+	// Holds number of instances (if 1 the mesh will be rendered normally)
+	unsigned int instancing;
+
+    Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::vector <Texture>& textures
+    ,		unsigned int instancing = 1, std::vector <glm::mat4> instanceMatrix = {});
     void Draw(Shader& shader, Camera& camera,
         glm::mat4 matrix = glm::mat4(1.0f),
         glm::vec3 translation = glm::vec3(0.0f, 0.0f, 0.0f),
@@ -25,6 +30,4 @@ public:
     );
 
 };
-
-
 #endif // MESH_CLASS_H 

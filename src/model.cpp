@@ -1,6 +1,6 @@
 #include "model.h"
 
-Model::Model(const char* file)
+Model::Model(const char* file, unsigned int instancing, std::vector<glm::mat4>)
 {
     std::string text = get_file_contents(file);
 
@@ -8,7 +8,8 @@ Model::Model(const char* file)
     Model::file = file;
 
     data = getData();
-
+    Model::instancing = instancing;
+    Model::instanceMatrix = instanceMatrix;
     traverseNode(0);
 }
 
