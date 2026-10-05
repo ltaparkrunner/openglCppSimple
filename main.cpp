@@ -1,6 +1,7 @@
 #include<filesystem>
 namespace fs = std::filesystem;
 #include "model.h"
+#include <glm/gtx/string_cast.hpp>
 
 const unsigned int width = 800;
 const unsigned int height = 800;
@@ -76,10 +77,9 @@ int main() {
 	// Set the viewport and clear the screen with a color
 	glViewport(0, 0, width, height);
 
-	// Shader shaderProgram("default.vert", "default.frag", "default.geom");
 	Shader shaderProgram("./assets/shaders/default.vert", "./assets/shaders/default.frag");
 	Shader skyboxShader("./assets/shaders/skybox.vert", "./assets/shaders/skybox.frag");
-	// Shader asteroidShader("./assets/shaders/asteroid.vert", "./assets/shaders/default.frag");
+	Shader asteroidShader("./assets/shaders/asteroid.vert", "./assets/shaders/default.frag");
 
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -91,9 +91,9 @@ int main() {
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 	skyboxShader.Activate();
 	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
-	// asteroidShader.Activate();
-	// glUniform4f(glGetUniformLocation(asteroidShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-	// glUniform3f(glGetUniformLocation(asteroidShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+	asteroidShader.Activate();
+	glUniform4f(glGetUniformLocation(asteroidShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform3f(glGetUniformLocation(asteroidShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -104,13 +104,11 @@ int main() {
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 
 	std::string parentDir = (fs::current_path().fs::path::parent_path()).string();
-
 	std::string jupiterPath = "/openglCppSimple/assets/models/jupiter/scene.gltf";
 	std::string asteroidPath = "/openglCppSimple/assets/models/asteroid/scene.gltf";
 
 	// Load in models
 	Model jupiter((parentDir + jupiterPath).c_str());
-	Model asteroid((parentDir + asteroidPath).c_str());
 
 	double prevTime = 0.0;
 	double crntTime = 0.0;
@@ -160,7 +158,6 @@ int main() {
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	// This might help with seams on some systems
-	//glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 	// Cycles through all the textures and attaches them to the cubemap object
 	for (unsigned int i = 0; i < 6; i++)
@@ -199,11 +196,7 @@ int main() {
 	// How much ateroids deviate from the radius
 	float radiusDeviation = 25.0f;
 
-	// Holds all transformations for the asteroids
-	glm::vec3 translations[number];
-	glm::quat rotations[number];
-	glm::vec3 scales[number];
-	// std::vector <glm::mat4> instanceMatrix;
+	std::vector <glm::mat4> instanceMatrix;
 
 	for (unsigned int i = 0; i < number; i++)
 	{
@@ -213,46 +206,42 @@ int main() {
 		float y = ((rand() % 2) * 2 - 1) * sqrt(1.0f - x * x);
 
 		// Holds transformations before multiplying them
-		// glm::vec3 tempTranslation;
-		// glm::quat tempRotation;
-		// glm::vec3 tempScale;
+		glm::vec3 tempTranslation;
+		glm::quat tempRotation;
+		glm::vec3 tempScale;
 
 		// Makes the random distribution more even
 		if (randf() > 0.5f)
 		{
 			// Generates a translation near a circle of radius "radius"
-			translations[i] = glm::vec3(y * finalRadius, randf(), x * finalRadius);
-			// tempTranslation = glm::vec3(y * finalRadius, randf(), x * finalRadius);
+			tempTranslation = glm::vec3(y * finalRadius, randf(), x * finalRadius);
 		}
 		else
 		{
 			// Generates a translation near a circle of radius "radius"
-			translations[i] = glm::vec3(x * finalRadius, randf(), y * finalRadius);
-			// tempTranslation = glm::vec3(x * finalRadius, randf(), y * finalRadius);
+			tempTranslation = glm::vec3(x * finalRadius, randf(), y * finalRadius);
 		}
 		// Generates random rotations
-		rotations[i] = glm::quat(1.0f, randf(), randf(), randf());
-		// tempRotation = glm::quat(1.0f, randf(), randf(), randf());
+		tempRotation = glm::quat(1.0f, randf(), randf(), randf());
 		// Generates random scales
-		scales[i] = 0.1f * glm::vec3(randf(), randf(), randf());
-		//tempScale = 0.1f * glm::vec3(randf(), randf(), randf());
-
+		tempScale = 0.1f * glm::vec3(randf(), randf(), randf());
 
 		// Initialize matrices
-		// glm::mat4 trans = glm::mat4(1.0f);
-		// glm::mat4 rot = glm::mat4(1.0f);
-		// glm::mat4 sca = glm::mat4(1.0f);
+		glm::mat4 trans = glm::mat4(1.0f);
+		glm::mat4 rot = glm::mat4(1.0f);
+		glm::mat4 sca = glm::mat4(1.0f);
 
 		// Transform the matrices to their correct form
-		// trans = glm::translate(trans, tempTranslation);
-		// rot = glm::mat4_cast(tempRotation);
-		// sca = glm::scale(sca, tempScale);
+		trans = glm::translate(trans, tempTranslation);
+		rot = glm::mat4_cast(tempRotation);
+		sca = glm::scale(sca, tempScale);
 
 		// Push matrix transformation
-		// instanceMatrix.push_back(trans * rot * sca);
+		instanceMatrix.push_back(trans * rot * sca);
 	}
+
 	// Create the asteroid model with instancing enabled
-	// Model asteroid((parentDir + asteroidPath).c_str(), number, instanceMatrix);
+	Model asteroid((parentDir + asteroidPath).c_str(), number, instanceMatrix);
 
 	while (!glfwWindowShouldClose(window)) {
 		crntTime = glfwGetTime();
@@ -284,11 +273,7 @@ int main() {
 		// Draw jupiter
 		jupiter.Draw(shaderProgram, camera);
 		// Draw the asteroids
-		for (unsigned int i = 0; i < number; i++)
-		{
-			asteroid.Draw(shaderProgram, camera, translations[i], rotations[i], scales[i]);
-		}
-		//	asteroid.Draw(asteroidShader, camera);
+		asteroid.Draw(asteroidShader, camera);
 
 		// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
 		glDepthFunc(GL_LEQUAL);

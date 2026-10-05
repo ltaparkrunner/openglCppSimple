@@ -1,4 +1,5 @@
 #include "mesh.h"
+#include <glm/gtx/string_cast.hpp>
 
 Mesh::Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::vector <Texture>& textures
     , unsigned int instancing, std::vector <glm::mat4> instanceMatrix)
@@ -18,7 +19,7 @@ Mesh::Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::v
 	mVAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
 	mVAO.LinkAttrib(VBO, 2, 3, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float)));
 	mVAO.LinkAttrib(VBO, 3, 2, GL_FLOAT, sizeof(Vertex), (void*)(9 * sizeof(float)));
-    	if (instancing != 1)
+    if (instancing != 1)
 	{
 		instanceVBO.Bind();
 		// Can't link to a mat4 so you need to link four vec4s
@@ -87,10 +88,9 @@ void Mesh::Draw(Shader& shader, Camera& camera,
 
         // Draw the actual mesh
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    	}
+    }
 	else
 	{
-		glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, instancing);
+        glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, instancing);
 	}
-
 }

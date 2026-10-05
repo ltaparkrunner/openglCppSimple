@@ -25,14 +25,13 @@ out vec2 texCoord;
 
 // Imports the camera matrix
 uniform mat4 camMatrix;
-
-
 void main()
 {
 	// calculates current position
 	crntPos = vec3(instanceMatrix * vec4(aPos, 1.0f));
 	// Assigns the normal from the Vertex Data to "Normal"
-	Normal = aNormal;
+	Normal = mat3(transpose(inverse(instanceMatrix))) * aNormal;
+	// Normal = aNormal;
 	// Assigns the colors from the Vertex Data to "color"
 	color = aColor;
 	// Assigns the texture coordinates from the Vertex Data to "texCoord"
@@ -40,4 +39,5 @@ void main()
 	
 	// Outputs the positions/coordinates of all vertices
 	gl_Position = camMatrix * vec4(crntPos, 1.0);
+	// gl_Position = camMatrix * vec4(aPos, 1.0); 
 }
