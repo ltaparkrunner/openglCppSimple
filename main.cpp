@@ -9,6 +9,9 @@ const unsigned int height = 800;
 // Number of samples per pixel for MSAA
 unsigned int samples = 8;
 
+// Controls the gamma function
+float m_gamma = 2.2f;
+
 float rectangleVertices[] =
 {
 	//  Coords   // texCoords
@@ -64,6 +67,7 @@ int main() {
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 	framebufferProgram.Activate();
 	glUniform1i(glGetUniformLocation(framebufferProgram.ID, "screenTexture"), 0);
+	glUniform1f(glGetUniformLocation(framebufferProgram.ID, "gamma"), m_gamma);
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -112,7 +116,7 @@ int main() {
 	unsigned int framebufferTexture;
 	glGenTextures(1, &framebufferTexture);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, framebufferTexture);
-	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB, width, height, GL_TRUE);
+	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB16F, width, height, GL_TRUE);
 	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // Prevents edge bleeding
@@ -141,7 +145,7 @@ int main() {
 	unsigned int postProcessingTexture;
 	glGenTextures(1, &postProcessingTexture);
 	glBindTexture(GL_TEXTURE_2D, postProcessingTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -175,7 +179,7 @@ int main() {
 		// Bind the custom framebuffer
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 		
-		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+		glClearColor(pow(0.07f, m_gamma), pow(0.13f, m_gamma), pow(0.17f, m_gamma), 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// Enable depth testing since it's disabled when drawing the framebuffer rectangle
 		glEnable(GL_DEPTH_TEST);

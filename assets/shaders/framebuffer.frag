@@ -4,6 +4,7 @@ out vec4 FragColor;
 in vec2 texCoords;
 
 uniform sampler2D screenTexture;
+uniform float gamma;
 
 const float offset_x = 1.0f / 800.0f;  
 const float offset_y = 1.0f / 800.0f;  
@@ -31,5 +32,7 @@ void main()
 //    FragColor = vec4(color, 1.0f);
 
 // The normal color variant
-    FragColor = texture(screenTexture, texCoords);
+//    FragColor = texture(screenTexture, texCoords);
+    vec4 fragment = texture(screenTexture, texCoords);
+    FragColor.rgb = pow(fragment.rgb, vec3(1.0f / gamma));
 }
