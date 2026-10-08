@@ -27,10 +27,10 @@ float rectangleVertices[] =
 // Vertices for plane with texture
 std::vector<Vertex> vertices =
 {
-	Vertex{glm::vec3(-1.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
-	Vertex{glm::vec3(-1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
-	Vertex{glm::vec3(1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
-	Vertex{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)}
+	Vertex{glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+	Vertex{glm::vec3(-1.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
+	Vertex{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
+	Vertex{glm::vec3(1.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)}
 };
 
 // Indices for plane with texture
@@ -170,6 +170,7 @@ int main() {
 	std::string parentDir = (fs::current_path().fs::path::parent_path()).string();
 	std::string diffusePath = "/openglCppSimple/assets/textures/diffuse.png";
 	std::string normalPath = "/openglCppSimple/assets/textures/normal.png";
+	std::string displacementPath = "/openglCppSimple/assets/textures/displacement.png";
 
 	std::vector<Texture> textures =
 	{
@@ -180,6 +181,7 @@ int main() {
 	Mesh plane(vertices, indices, textures);
 	// Normal map for the plane
 	Texture normalMap((parentDir + normalPath).c_str(), "normal", 1);
+	Texture displacementMap((parentDir + displacementPath).c_str(), "displacement", 2);
 
 	while (!glfwWindowShouldClose(window)) {
 		crntTime = glfwGetTime();
@@ -217,6 +219,8 @@ int main() {
 		shaderProgram.Activate();
 		normalMap.Bind();
 		glUniform1i(glGetUniformLocation(shaderProgram.ID, "normal0"), 1);
+		displacementMap.Bind();
+		glUniform1i(glGetUniformLocation(shaderProgram.ID, "displacement0"), 2);
 
 		// Draw the normal model
 		plane.Draw(shaderProgram, camera);

@@ -12,7 +12,8 @@ in vec3 camPos;
 uniform sampler2D diffuse0;
 uniform sampler2D specular0;
 uniform sampler2D normal0;
-uniform samplerCube shadowCubeMap;
+uniform sampler2D displacement0;
+//uniform samplerCube shadowCubeMap;
 
 uniform vec4 lightColor;
 
@@ -34,7 +35,7 @@ vec4 spotLight() {
       vec3 viewDirection = normalize(camPos -crntPos);
       vec3 halfwayVec = normalize(viewDirection + lightDirection);
       float specAmount = pow(max(dot(viewDirection, halfwayVec), 0.0f), 16);
-      float specular = specAmount * specularLight;
+      specular = specAmount * specularLight;
    };
 
    float angle = dot(vec3(0.0f, -1.0f, 0.0f), -lightDirection);
@@ -51,7 +52,48 @@ vec4 pointLight() {
    float inten = 1.0f / (a * dist * dist + b * dist + 1.0f);
    float ambient = 0.05f;
 
-   vec3 normal = normalize(Normal);
+   vec3 viewDirection = normalize(camPos - crntPos);
+	
+	// Variables that control parallax occlusion mapping quality
+	float heightScale = 0.05f;
+	const float minLayers = 8.0f;
+    const float maxLayers = 64.0f;
+    float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0f, 0.0f, 1.0f), viewDirection)));
+	float layerDepth = 1.0f / numLayers;
+	float currentLayerDepth = 0.0f;
+	
+	// Remove the z division if you want less aberated results
+	vec2 S = viewDirection.xy / viewDirection.z * heightScale; 
+    vec2 deltaUVs = S / numLayers;
+	
+	vec2 UVs = texCoord;
+	float currentDepthMapValue = 1.0f - texture(displacement0, UVs).r;
+	
+	// Loop till the point on the heightmap is "hit"
+	while(currentLayerDepth < currentDepthMapValue)
+    {
+        UVs -= deltaUVs;
+        currentDepthMapValue = 1.0f - texture(displacement0, UVs).r;
+        currentLayerDepth += layerDepth;
+    }
+
+	// Apply Occlusion (interpolation with prev value)
+	vec2 prevTexCoords = UVs + deltaUVs;
+	float afterDepth  = currentDepthMapValue - currentLayerDepth;
+	float beforeDepth = 1.0f - texture(displacement0, prevTexCoords).r - currentLayerDepth + layerDepth;
+	float weight = afterDepth / (afterDepth - beforeDepth);
+	UVs = prevTexCoords * weight + UVs * (1.0f - weight);
+
+	// Get rid of anything outside the normal range
+	if(UVs.x > 1.0 || UVs.y > 1.0 || UVs.x < 0.0 || UVs.y < 0.0)
+		discard;
+
+	
+
+
+	// diffuse lighting
+	// Normals are mapped from the range [0, 1] to the range [-1, 1]
+	vec3 normal = normalize(texture(normal0, UVs).xyz * 2.0f - 1.0f);
    vec3 lightDirection = normalize(lightVec);
 
    float diffuse = max(dot(normal, lightDirection), 0.0f);
@@ -61,14 +103,14 @@ vec4 pointLight() {
    if (diffuse != 0.0f)
    {
       float specularLight = 0.50f;
-      vec3 viewDirection = normalize(camPos - crntPos);
+      // vec3 viewDirection = normalize(camPos - crntPos);
       vec3 halfwayVec = normalize(viewDirection + lightDirection);
       // vec3 reflectionDirection = reflect(-lightDirection, normal);
       float specAmount = pow(max(dot(viewDirection, halfwayVec), 0.0f), 16);
-      float specular = specAmount * specularLight;
+      specular = specAmount * specularLight;
    };
 
-   return (texture(diffuse0, texCoord) * (diffuse * inten + ambient) + texture(specular0, texCoord).r * specular * inten) * lightColor ;
+	return (texture(diffuse0, UVs) * (diffuse * inten + ambient) + texture(specular0, UVs).r * specular * inten) * lightColor;
 }
 
 vec4 directLight() {
@@ -88,7 +130,7 @@ vec4 directLight() {
 //      vec3 reflectionDirection = reflect(-lightDirection, normal);
       vec3 halfwayVec = normalize(viewDirection + lightDirection);
       float specAmount = pow(max(dot(viewDirection, halfwayVec), 0.0f), 16);
-      float specular = specAmount * specularLight;
+      specular = specAmount * specularLight;
    };
 
  	return (texture(diffuse0, texCoord) * (diffuse /* inten*/ + ambient) + texture(specular0, texCoord).r * specular /* inten*/) * lightColor ;
