@@ -23,7 +23,9 @@ Texture::Texture(const char* image, const char* texType, GLuint slot) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 //	std::cout << "Forev__numColCh: " << numColCh << std::endl;
-	if(numColCh == 4) glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, widthImg, heightImg, 
+	if(type == "normal") glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthImg, heightImg, 
+		0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+	else if(numColCh == 4) glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, widthImg, heightImg, 
 		0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
 	else if(numColCh == 3) glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, widthImg, heightImg, 
 		0, GL_RGB, GL_UNSIGNED_BYTE, bytes);
